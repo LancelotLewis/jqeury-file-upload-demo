@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>jQuery File Upload Example</title>
+	<style>
+		.progress-bar {
+			position: relative;
+			width: 114px;
+			height: 14px;
+			box-sizing: border-box;
+			background-color: #abb2bc;  
+			border-radius: 14px;
+		}
+		.bar {
+			box-sizing: border-box;
+			height: 14px;
+			background: green;
+			padding: 0 7px;
+			border-radius: 14px;
+		}
+		.hover{
+			position: relative;
+		}
+		.hover canvas{
+			display: none;
+			position: absolute;
+			left: 100%;
+			top: 1em;
+		}
+		.hover:hover canvas{
+			display: block;
+			z-index: 99;
+		}
+		button{
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body onbeforeunload="return checkUpload();">
+	<div class="fileList">
+		<div id="fileList"></div>
+	</div>
+
+	<input id="fileupload" accept=".jpg,.jpeg,.png" type="file" name="files[]" data-url="server.php" multiple>
+	
+	<script src="//cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
+	<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+	<script src="//cdn.bootcss.com/blueimp-load-image/2.12.2/load-image.all.min.js"></script>
+	<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+	<!-- <script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script> -->
+
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-process.min.js"></script>
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-image.min.js"></script>
+	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-validate.min.js"></script>
+	<script src="//cdn.bootcss.com/vue/2.2.1/vue.js"></script>
+
+	<script type="text/html" id="tpl">
+		<table>
+			<caption>上传列表</caption>
+			<thead>
+				<th>文件名</th>
+				<th>文件大小</th>
+				<th>上传进度</th>
+				<th>操作</th>
+			</thead>
+			<tr v-for="(file, index) in files">
+				<td>{{file.name}}</td>
+				<td>{{file.size|format}}</td>
+				<td>
+					<div v-if="!file.error" id="progress" class="progress-bar" :data-progress="file.progress">
+						<div class="bar" :style="{width: 14+file.progress+'px' }"></div>
+					</div>
+					<div v-else>
+						{{file.error|message}}
+					</div>
+				</td>
+				<td>
+					<div class="hover">
+						<button disabled="true" v-if="!file.error && file.progress < 100">{{file.progress}}%</button>
+						<button @click="deleteFile(index)" v-else>删除</button>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</script>
+	<script src="progress.js"></script>
+</body> 
+</html>
