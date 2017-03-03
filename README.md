@@ -1,6 +1,8 @@
 # jqeury-file-upload-demo
 A demo use  blueibm 'jquery-file-upload' plugin
 
+
+
 > 当你无法分辨长的很像的英文的时候，能够拯救你的就只有一遍又一遍的试错了。
 
 ## 前言介绍
@@ -46,7 +48,13 @@ sequentialUploads: true
 
 
 ## 图片预览
-扒拉扒拉上传一堆图片，结果想不起来哪些图片已经上传成功，这下就尴尬了。所以简单的图片预览功能也不能少。前端显示图片有两种方式，一种是通过`img`标签加上`src`属性（由于使用服务端的图片地址会带来额外的开销，img 的方式也会选择本地的图片转换成 base64 编码直接在浏览器显示），另一种就是通过生成`canvas`直接显示图片。据了解，这款插件使用的是 canvas  的方式。要实现图片预览的功能还需要添加额外的 js 文件
+扒拉扒拉上传一堆图片，结果想不起来哪些图片已经上传成功，这下就尴尬了。所以简单的图片预览功能也不能少。
+
+前端显示图片有两种方式，一种是通过`img`标签加上`src`属性（由于使用服务端的图片地址会带来额外的开销，img 的方式也会选择本地的图片转换成 base64 编码直接在浏览器显示），另一种就是通过生成`canvas`直接显示图片。
+
+最初的想法是使用`file`绑定的文件直接生成一个`base64`地址，获取`file`值的办法就是找到对应元素，使用 js 获取其`value`， 但是在同时添加多个文件的时候，没有办法获取到所选文件的列表，尝试在`add`方法中打印出来每一个文件的`data`数据，但是打印出来`file`的`value`都是同一个，尝试了很多遍，都是一样的结果。所以，这个思路失败。
+
+然后就开始查看官方的例子，发现就有自带图片预览功能。据调查发现，这款插件使用的是 canvas  的方式。要实现图片预览的功能还需要添加额外的 js 文件
 ```
 <script src="//cdn.bootcss.com/blueimp-load-image/2.12.2/load-image.all.min.js"></script>
 <script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-image.min.js"></script>
