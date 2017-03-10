@@ -1,3 +1,5 @@
+require('./progress.css');
+
 function checkUpload(){
 	var files = vm.files;
 	for(var i=0,len=vm.files.length;i<len;i++){
@@ -64,51 +66,14 @@ $(function () {
 	$('#fileupload').fileupload({
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		sequentialUploads: true,
-		dropZone: $(document),
+		dropZone: $('.content'),
 		previewMaxWidth: 512,
 		previewMaxHeight: 5000000,
+		autoUpload: false,
+		maxFileSize: 1*1024*1024,
+		minFileSize: 10*1024,
 		imageType: 'image/jpg'
-		// previewCrop: true
-	}).on('fileuploadadd', function (e, data) {
-		var files = data.files;
-		for(var i=0,len=files.length;i<len;i++){
-			var index = i;
-			// todo 本地上传图片的预览
-			// 上传文件前检查文件是否有误/文件是否已经上传
-			$.ajax({
-				url: 'server.php?1',
-				data: {
-					data: files[index].name
-				},
-				dataType: 'json',
-				success: function(result){
-					if(result.status == 0){
-						files[index].error = '文件名不对';
-						vm.files.push(files[index]);
-					}else{
-						files[index].progress = 0;
-						vm.files.push(files[index]);
-						data.process().done(function () {
-							data.submit();
-						});
-					}								
-				},
-				error: function(){
-					return false;
-				}
-			});
-		}
-	}).on('fileuploadprocessdone', function(e,data) {
-		var index = data.index,
-				preview = data.files[index].preview;
-		if(preview){
-			for(var i=0,len=vm.files.length;i<len;i++){
-				if(data.files[index] === vm.files[i]){
-					$($fileList.find('tr').eq(i)).find('.hover').append(preview);
-				}
-			}
-		}
-	}).on('fileuploadprogress',function(e,data){
+	}).on('fileuploadprogress',function(e, data){
 		var progress = parseInt(data.loaded / data.total * 100, 10);
 		for(var i=0,len=vm.files.length;i<len;i++){
 			if(data.files[0] === vm.files[i]){
@@ -116,5 +81,62 @@ $(function () {
 				Vue.set(vm.files,i,data.files[0]);
 			}
 		}
+	}).on('fileuploadprocess', function(e,data) {
+		var files = data.files,
+				index = data.index;
+		console.log(files[index].name);
+	}).on('fileuploadprocessdone', function(e, data) {
+		var files = data.files,
+				index = data.index;
+		// todo 本地上传图片的预览
+		// 上传文件前检查文件是否有误/文件是否已经上传
+		$.ajax({
+			url: 'check',
+			data: {
+				data: files[index].name
+			},
+			dataType: 'json',
+			// cache: false,
+			success: function(result){
+				// console.log(index);
+				// result.status = Math.round(Math.random(result.status));
+				// console.log(result.status);
+				if(result.status === 0){
+					files[index].error = '文件已上传过';
+					console.log(index);
+					vm.files.push(files[index]);
+				}else{
+					files[index].progress = 0;
+					vm.files.push(files[index]);
+					data.process().done(function () {
+						data.submit();
+					});
+				}								
+			},
+			error: function(){
+				return false;
+			}
+		});
+		// var index = data.index,
+		// 		preview = data.files[index].preview;
+		// if(preview){
+		// 	for(var i=0,len=vm.files.length;i<len;i++){
+		// 		if(data.files[index] === vm.files[i]){
+		// 			console.log(preview);
+		// 			$($fileList.find('tr').eq(i)).find('.hover').append(preview);
+		// 		}
+		// 	}
+		// }
+	}).on('fileuploadprocessfail', function(e, data) {
+		var files = data.files,
+				index = data.index;
+		vm.files.push(files[index]);
 	});
+});
+
+Mock.mock('upload', {
+  'status': Random.integer( 0, 1 )
+});
+Mock.mock('check', {
+  'status': Random.integer( 0, 1 )
 });

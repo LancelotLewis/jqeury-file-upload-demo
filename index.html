@@ -2,49 +2,69 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>jQuery File Upload Example</title>
-	<style>
-		.progress-bar {
-			position: relative;
-			width: 114px;
-			height: 14px;
-			box-sizing: border-box;
-			background-color: #abb2bc;  
-			border-radius: 14px;
-		}
-		.bar {
-			box-sizing: border-box;
-			height: 14px;
-			background: green;
-			padding: 0 7px;
-			border-radius: 14px;
-		}
-		.hover{
-			position: relative;
-		}
-		.hover canvas{
-			display: none;
-			position: absolute;
-			left: 100%;
-			top: 1em;
-		}
-		.hover:hover canvas{
-			display: block;
-			z-index: 99;
-		}
-		button{
-			cursor: pointer;
-		}
-	</style>
+	<title>上传列表-外勤助手</title>
+	<link href="//cdn.bootcss.com/core.css/1.1/css/core.min.css" rel="stylesheet">
+	<!-- <link rel="stylesheet" href="progress.css"> -->
 </head>
 <body onbeforeunload="return checkUpload();">
-	<div class="fileList">
-		<div id="fileList"></div>
-	</div>
+	<header class="header">
+		<h1>上传列表</h1>
+	</header>
+	<div class="content" id="fileList"></div>
+	<footer class="col xs-12 footer">
+		<div class="add">
+			<input id="fileupload" accept=".jpg,.jpeg,.png" type="file" name="files[]" multiple>
+			<svg class="icon" aria-hidden="true">
+				<use xlink:href="#icon-add"></use>
+			</svg>
+			<p>添加文件</p>
+		</div>
+	</footer>
 
-	<input id="fileupload" accept=".jpg,.jpeg,.png" type="file" name="files[]" data-url="server.php" multiple>
+	<script type="text/html" id="tpl">
+		<div class="content" :data-msg="files.length?'':'直接拖拽文件至此'">
+			<div class="row xl" style="height: 100%;">
+				<div class="col xs-12 fileList">
+					<table>
+						<!-- <caption>上传列表</caption> -->
+						<thead>
+							<th class="col xs-6">文件名</th>
+							<th class="col xs-2">文件大小</th>
+							<th class="col xs-3">上传进度</th>
+							<th class="col xs-1">操作</th>
+						</thead>
+						<tbody>
+							<tr v-for="(file, index) in files" :class="{error: file.error, upload: file.error == '文件已上传过'}">
+								<td class="col xs-6">{{file.name}}</td>
+								<td class="col xs-2 center">{{file.size|format}}</td>
+								<td class="col xs-3 center">
+									<div v-if="!file.error" id="progress" class="progress-bar" :data-progress="file.progress">
+										<div class="bar" :style="{width: file.progress+'%' }"></div>
+									</div>
+									<!-- <meter v-if="!file.error" :value="file.progress" min="0" max="100"></meter> -->
+									<div v-else>
+										{{file.error|message}}
+									</div>
+								</td>
+								<td class="col xs-1 center">
+									<div class="hover">
+										<span class="percent" v-if="!file.error && file.progress < 100">{{file.progress}}%</span>
+										<button title="删除该项" @click="deleteFile(index)" v-else>
+											<svg class="icon icon-delete" aria-hidden="true">
+												<use xlink:href="#icon-delete"></use>
+											</svg>
+										</button>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</script>
 	
-	<script src="//cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
 	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
 	<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
 	<script src="//cdn.bootcss.com/blueimp-load-image/2.12.2/load-image.all.min.js"></script>
@@ -53,40 +73,14 @@
 
 	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
 	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+
 	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-process.min.js"></script>
-	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-image.min.js"></script>
+	<!-- <script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-image.min.js"></script> -->
 	<script src="//cdn.bootcss.com/blueimp-file-upload/9.17.0/js/jquery.fileupload-validate.min.js"></script>
 	<script src="//cdn.bootcss.com/vue/2.2.1/vue.js"></script>
 
-	<script type="text/html" id="tpl">
-		<table>
-			<caption>上传列表</caption>
-			<thead>
-				<th>文件名</th>
-				<th>文件大小</th>
-				<th>上传进度</th>
-				<th>操作</th>
-			</thead>
-			<tr v-for="(file, index) in files">
-				<td>{{file.name}}</td>
-				<td>{{file.size|format}}</td>
-				<td>
-					<div v-if="!file.error" id="progress" class="progress-bar" :data-progress="file.progress">
-						<div class="bar" :style="{width: 14+file.progress+'px' }"></div>
-					</div>
-					<div v-else>
-						{{file.error|message}}
-					</div>
-				</td>
-				<td>
-					<div class="hover">
-						<button disabled="true" v-if="!file.error && file.progress < 100">{{file.progress}}%</button>
-						<button @click="deleteFile(index)" v-else>删除</button>
-					</div>
-				</td>
-			</tr>
-		</table>
-	</script>
-	<script src="progress.js"></script>
+	<script src="//at.alicdn.com/t/font_donu7rikdjdu0udi.js"></script>
+	<script src="http://mockjs.com/dist/mock.js"></script>
+	<!-- <script src="progress.js"></script> -->
 </body> 
 </html>

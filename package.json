@@ -1,0 +1,36 @@
+{
+  "name": "file",
+  "version": "1.1.0",
+  "description": "文件上传demo",
+  "main": "entry.js",
+  "scripts": {
+    "start": "webpack-dev-server --progress ",
+    "build": "webpack --colors --config webpack.config.build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LancelotLewis/jqeury-file-upload-demo.git"
+  },
+  "keywords": [
+    "file",
+    "upload",
+    "jquery"
+  ],
+  "author": "lance",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LancelotLewis/jqeury-file-upload-demo/issues"
+  },
+  "homepage": "https://github.com/LancelotLewis/jqeury-file-upload-demo#readme",
+  "devDependencies": {
+    "babel-loader": "^6.4.0",
+    "babel-preset-es2015": "^6.22.0",
+    "css-loader": "^0.26.4",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "html-webpack-plugin": "^2.28.0",
+    "style-loader": "^0.13.2",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  }
+}
