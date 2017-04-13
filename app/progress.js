@@ -7,7 +7,7 @@ function checkUpload(){
 			return '文件还未上传完成，是否要离开页面';
 		}
 	}
-};
+}
 var vm = new Vue({
 	el: '#fileList',
 	template: '#tpl',
@@ -16,7 +16,7 @@ var vm = new Vue({
 	},
 	filters: {
 		// 文件大小格式化
-		format (value) {
+		format(value) {
 			var suffix = ['B','K','M','G'];
 			var index = 0;
 			while(value>1023 && index< suffix.length){
@@ -25,7 +25,7 @@ var vm = new Vue({
 			}
 			return Math.round(value*1000)/1000+suffix[index];
 		},
-		message (msg) {
+		message(msg) {
 			var str = msg;
 			switch(msg){
 				case 'File type not allowed':
@@ -63,7 +63,11 @@ var vm = new Vue({
 });
 var $fileList = $('.fileList');
 $(function () {
-	$('#fileupload').fileupload({
+	var $fileupload = $('#fileupload'),
+		uploadUrl = $fileupload.data('upload'),
+		checkUrl = $fileupload.data('check');
+	$fileupload.fileupload({
+		url: uploadUrl,
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		sequentialUploads: true,
 		dropZone: $('.content'),
@@ -87,11 +91,11 @@ $(function () {
 		console.log(files[index].name);
 	}).on('fileuploadprocessdone', function(e, data) {
 		var files = data.files,
-				index = data.index;
+			index = data.index;
 		// todo 本地上传图片的预览
 		// 上传文件前检查文件是否有误/文件是否已经上传
-		$.ajax({
-			url: 'check',
+		checkUrl && $.ajax({
+			url: checkUrl,
 			data: {
 				data: files[index].name
 			},
@@ -111,7 +115,7 @@ $(function () {
 					data.process().done(function () {
 						data.submit();
 					});
-				}								
+				}
 			},
 			error: function(){
 				return false;
@@ -129,7 +133,7 @@ $(function () {
 		// }
 	}).on('fileuploadprocessfail', function(e, data) {
 		var files = data.files,
-				index = data.index;
+			index = data.index;
 		vm.files.push(files[index]);
 	});
 });

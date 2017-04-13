@@ -8,7 +8,7 @@ function checkUpload(){
 			return '文件还未上传完成，是否要离开页面';
 		}
 	}
-};
+}
 var vm = new Vue({
 	el: '#fileList',
 	template: '#tpl',
@@ -69,8 +69,11 @@ $(function () {
 		cache: false,
 		dataType: 'json'
 	});
-	$('#fileupload').fileupload({
-		url: 'index.php?r=admin/customizedAdCreate/saveUploadData',
+	var $fileupload = $('#fileupload'),
+		uploadUrl = $fileupload.data('upload'),
+		checkUrl = $fileupload.data('check');
+	$fileupload.fileupload({
+		url: uploadUrl,
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		sequentialUploads: true,
 		dropZone: $('.content'),
@@ -83,7 +86,7 @@ $(function () {
 		done: function(e, data){
 			var res = data.result;
 			var index = data.index;
-			if(res.status == 0){
+			if(+res.status === 0){
 				for(var i=0,len=vm.files.length;i<len;i++){
 					if(data.files[index] === vm.files[i]){
 						data.files[index].error = res.message;
@@ -106,35 +109,43 @@ $(function () {
 		console.log(files[index].name);
 	}).on('fileuploadprocessdone', function(e, data) {
 		var files = data.files,
-				index = data.index;
+			index = data.index;
 		// todo 本地上传图片的预览
 		// 上传文件前检查文件是否有误/文件是否已经上传
-		$.ajax({
-			url: 'index.php?r=admin/customizedAdCreate/checkFileName',
-			data: {
-				data: files[index].name
-			},
-			// cache: false,
-			success: function(result){
-				// console.log(index);
-				// result.status = Math.round(Math.random(result.status));
-				// console.log(result.status);
-				if(result.status === 0){
-					files[index].error = result.message?result.message:'文件已上传过';
-					console.log(index);
-					vm.files.push(files[index]);
-				}else{
-					files[index].progress = 0;
-					vm.files.push(files[index]);
-					data.process().done(function () {
-						data.submit();
-					});
-				}								
-			},
-			error: function(){
-				return false;
-			}
-		});
+		if(checkUrl){
+			$.ajax({
+				url: checkUrl,
+				data: {
+					data: files[index].name
+				},
+				// cache: false,
+				success: function(result){
+					// console.log(index);
+					// result.status = Math.round(Math.random(result.status));
+					// console.log(result.status);
+					if(result.status === 0){
+						files[index].error = result.message?result.message:'文件已上传过';
+						console.log(index);
+						vm.files.push(files[index]);
+					}else{
+						files[index].progress = 0;
+						vm.files.push(files[index]);
+						data.process().done(function () {
+							data.submit();
+						});
+					}
+				},
+				error: function(){
+					return false;
+				}
+			});
+		}else{
+			files[index].progress = 0;
+			vm.files.push(files[index]);
+			data.process().done(function () {
+				data.submit();
+			});
+		}
 		// var index = data.index,
 		// 		preview = data.files[index].preview;
 		// if(preview){
